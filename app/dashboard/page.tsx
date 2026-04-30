@@ -4,39 +4,20 @@ import { SentimentTimelineCard } from "@/components/dashboard/SentimentTimelineC
 import { AIPredictionPanel } from "@/components/dashboard/AIPredictionPanel";
 import { LatestNewsPanel } from "@/components/dashboard/LatestNewsPanel";
 import { WatchlistSection } from "@/components/dashboard/WatchlistSection";
+import { backendGet } from "@/lib/backend-api";
 
-const mockNews = [
-  {
-    id: "1",
-    headline: "Apple announces new AI features for next iPhone release",
-    source: "Reuters",
-    sentiment: "positive" as const,
-  },
-  {
-    id: "2",
-    headline: "Tech sector faces regulatory scrutiny in Q2",
-    source: "Bloomberg",
-    sentiment: "neutral" as const,
-  },
-  {
-    id: "3",
-    headline: "Analysts raise price targets amid strong earnings",
-    source: "CNBC",
-    sentiment: "positive" as const,
-  },
-  {
-    id: "4",
-    headline: "Supply chain concerns weigh on semiconductor stocks",
-    source: "Financial Times",
-    sentiment: "negative" as const,
-  },
-  {
-    id: "5",
-    headline: "Fed signals steady rates; markets react positively",
-    source: "WSJ",
-    sentiment: "positive" as const,
-  },
-];
+type DashboardPayload = {
+  symbol: string;
+  current_price: number;
+  daily_change: number;
+  sentiment_score: number;
+  ai_signal: "BUY" | "SELL" | "HOLD";
+  confidence: number;
+};
+
+interface DashboardPageProps {
+  searchParams?: Promise<{ symbol?: string }>;
+}
 
 const mockWatchlist = [
   { symbol: "AAPL", trend: "up" as const, signal: "BUY" as const, change: "+2.4%" },
@@ -48,9 +29,59 @@ const mockWatchlist = [
   { symbol: "META", trend: "up" as const, signal: "HOLD" as const, change: "+0.4%" },
 ];
 
-export default function DashboardPage() {
+export default async function DashboardPage({ searchParams }: DashboardPageProps) {
+  type Signal = "BUY" | "SELL" | "HOLD";
+  const params = (await searchParams) ?? {};
+  const symbol = (params.symbol || "AAPL").toUpperCase();
+  let dashboard: DashboardPayload | null = null;
+  let news: { id: string; headline: string; source: string; sentiment: "positive" | "neutral" | "negative" }[] = [];
+  let hasBackendError = false;
+  let prediction: { signal: Signal; confidence: number; explanation: string } = {
+    signal: "BUY",
+    confidence: 84,
+    explanation: "Prediction service unavailable.",
+  };
+
+  try {
+    const [dashboardRes, newsRes, predictRes] = await Promise.all([
+      backendGet<DashboardPayload>(`/api/dashboard/${symbol}`),
+      backendGet<
+        {
+          title: string;
+          source: string | null;
+          sentiment_label: "positive" | "neutral" | "negative" | null;
+        }[]
+      >(`/api/news/${symbol}`),
+      backendGet<{ signal: "BUY" | "SELL" | "HOLD"; confidence: number; explanation: string }>(`/api/predict/${symbol}`),
+    ]);
+    dashboard = dashboardRes;
+    news = newsRes.slice(0, 5).map((n, i) => ({
+      id: String(i + 1),
+      headline: n.title,
+      source: n.source || "Unknown",
+      sentiment: (n.sentiment_label || "neutral") as "positive" | "neutral" | "negative",
+    }));
+    prediction = {
+      signal: predictRes.signal,
+      confidence: Math.round(predictRes.confidence * 100),
+      explanation: predictRes.explanation,
+    };
+  } catch {
+    hasBackendError = true;
+  }
+
+  const currentPrice = dashboard ? `$${dashboard.current_price.toFixed(2)}` : "$178.24";
+  const dailyChange = dashboard ? `${dashboard.daily_change >= 0 ? "+" : ""}${dashboard.daily_change.toFixed(2)}%` : "+2.44%";
+  const sentimentPct = dashboard ? `${Math.round(dashboard.sentiment_score * 100)}%` : "72%";
+  const signal = dashboard?.ai_signal || "BUY";
+
   return (
     <>
+      {hasBackendError && (
+        <div className="mb-4 rounded-lg border border-amber-500/30 bg-amber-500/10 px-4 py-2 text-sm text-amber-300">
+          Backend unavailable. Showing fallback dashboard values.
+        </div>
+      )}
       {/* Market Summary - 4 cards */}
         <section
           className="mb-8 grid gap-4 sm:grid-cols-2 lg:grid-cols-4"
@@ -58,27 +89,27 @@ export default function DashboardPage() {
         >
           <MarketSummaryCard
             icon="dollar"
-            value="$178.24"
+            value={currentPrice}
             label="Current Stock Price"
             delay={0}
           />
           <MarketSummaryCard
             icon="trend"
-            value="+2.44%"
+            value={dailyChange}
             label="Daily Change"
-            variant="positive"
+            variant={dailyChange.startsWith("-") ? "negative" : "positive"}
             delay={0.05}
           />
           <MarketSummaryCard
             icon="sentiment"
-            value="72%"
+            value={sentimentPct}
             label="Sentiment Score"
             variant="positive"
             delay={0.1}
           />
           <MarketSummaryCard
             icon="signal"
-            value="BUY"
+            value={signal}
             label="AI Prediction Signal"
             variant="positive"
             delay={0.15}
@@ -96,11 +127,11 @@ export default function DashboardPage() {
           {/* Right column - 1/3 */}
           <div className="space-y-6">
             <AIPredictionPanel
-              signal="BUY"
-              confidence={84}
-              explanation="Our model indicates strong momentum and positive sentiment from recent news. Technical levels suggest support at $172. Risk-adjusted outlook favors a long position with a suggested horizon of 2–4 weeks."
+              signal={prediction.signal}
+              confidence={prediction.confidence}
+              explanation={prediction.explanation}
             />
-            <LatestNewsPanel items={mockNews} />
+            <LatestNewsPanel items={news} />
           </div>
         </div>
 

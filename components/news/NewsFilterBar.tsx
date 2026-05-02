@@ -27,12 +27,7 @@ const sentimentOptions: { value: SentimentFilter; label: string }[] = [
 
 const sectorOptions = [
   { value: "all", label: "All sectors" },
-  { value: "Technology", label: "Technology" },
-  { value: "Macro", label: "Macro" },
-  { value: "Automotive", label: "Automotive" },
-  { value: "Healthcare", label: "Healthcare" },
-  { value: "Energy", label: "Energy" },
-  { value: "Consumer", label: "Consumer" },
+  { value: "General", label: "General" },
 ];
 
 export function NewsFilterBar({

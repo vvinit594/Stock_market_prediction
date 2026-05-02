@@ -20,6 +20,7 @@ class Settings(BaseSettings):
     DATABASE_URL: str = "postgresql+psycopg2://postgres:postgres@localhost:5432/stockai"
     REDIS_URL: str = "redis://localhost:6379/0"
     CACHE_TTL_SECONDS: int = 300
+    STOCK_CACHE_TTL_SECONDS: int = 45
     REQUEST_TIMEOUT_SECONDS: int = 12
 
     ALPHA_VANTAGE_API_KEY: str = ""
@@ -27,7 +28,8 @@ class Settings(BaseSettings):
     FINNHUB_API_KEY: str = ""
     FINBERT_MODEL_NAME: str = "ProsusAI/finbert"
     USE_FINBERT: bool = False
-    USE_LIVE_MARKET_DATA: bool = False
+    USE_LIVE_MARKET_DATA: bool = True
+    USE_MOCK_MARKET_DATA: bool = False
 
     BACKEND_CORS_ORIGINS: str = "http://localhost:3000"
 

@@ -1,0 +1,95 @@
+symbol,name
+AAPL,Apple Inc.
+MSFT,Microsoft Corporation
+GOOGL,Alphabet Inc.
+AMZN,Amazon.com Inc.
+META,Meta Platforms Inc.
+NVDA,NVIDIA Corporation
+TSLA,Tesla Inc.
+AMD,Advanced Micro Devices Inc.
+INTC,Intel Corporation
+NFLX,Netflix Inc.
+DIS,Walt Disney Company
+JPM,JPMorgan Chase & Co.
+BAC,Bank of America Corp.
+WFC,Wells Fargo & Company
+GS,Goldman Sachs Group Inc.
+V,Visa Inc.
+MA,Mastercard Inc.
+PYPL,PayPal Holdings Inc.
+COST,Costco Wholesale Corporation
+WMT,Walmart Inc.
+HD,Home Depot Inc.
+PG,Procter & Gamble Co.
+KO,Coca-Cola Company
+PEP,PepsiCo Inc.
+XOM,Exxon Mobil Corporation
+CVX,Chevron Corporation
+UNH,UnitedHealth Group Inc.
+JNJ,Johnson & Johnson
+PFE,Pfizer Inc.
+ABBV,AbbVie Inc.
+MRK,Merck & Co. Inc.
+LLY,Eli Lilly and Company
+CRM,Salesforce Inc.
+ORCL,Oracle Corporation
+CSCO,Cisco Systems Inc.
+IBM,International Business Machines
+NOW,ServiceNow Inc.
+UBER,Uber Technologies Inc.
+LYFT,Lyft Inc.
+SHOP,Shopify Inc.
+SQ,Block Inc.
+COIN,Coinbase Global Inc.
+PLTR,Palantir Technologies Inc.
+SNOW,Snowflake Inc.
+MDB,MongoDB Inc.
+DDOG,Datadog Inc.
+NET,Cloudflare Inc.
+CRWD,CrowdStrike Holdings Inc.
+PANW,Palo Alto Networks Inc.
+ZS,Zscaler Inc.
+ROKU,Roku Inc.
+SPOT,Spotify Technology S.A.
+ABNB,Airbnb Inc.
+DASH,DoorDash Inc.
+APP,AppLovin Corporation
+SNAP,Snap Inc.
+PINS,Pinterest Inc.
+TWTR,X Corp.
+NKE,Nike Inc.
+LULU,Lululemon Athletica Inc.
+SBUX,Starbucks Corporation
+MCD,McDonald's Corporation
+CMCSA,Comcast Corporation
+T,AT&T Inc.
+VZ,Verizon Communications Inc.
+TMUS,T-Mobile US Inc.
+BA,Boeing Company
+LMT,Lockheed Martin Corporation
+CAT,Caterpillar Inc.
+DE,Deere & Company
+GE,General Electric Company
+F,Ford Motor Company
+GM,General Motors Company
+RIVN,Rivian Automotive Inc.
+LCID,Lucid Group Inc.
+NIO,NIO Inc.
+XPEV,XPeng Inc.
+LI,Li Auto Inc.
+BABA,Alibaba Group Holding Ltd.
+JD,JD.com Inc.
+PDD,PDD Holdings Inc.
+BIDU,Baidu Inc.
+TSM,Taiwan Semiconductor Manufacturing
+SONY,Sony Group Corporation
+SAP,SAP SE
+ASML,ASML Holding N.V.
+NVO,Novo Nordisk A/S
+TM,Toyota Motor Corporation
+HMC,Honda Motor Co Ltd
+FMX,Fomento Economico Mexicano
+UL,Unilever PLC
+NEE,NextEra Energy Inc.
+ENPH,Enphase Energy Inc.
+FSLR,First Solar Inc.

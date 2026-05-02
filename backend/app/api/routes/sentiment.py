@@ -11,6 +11,13 @@ sentiment_service = SentimentService()
 news_service = NewsService()
 
 
+@router.get("/{symbol}/timeline")
+def sentiment_timeline(symbol: str) -> list[dict]:
+    news = news_service.get_news(symbol=symbol)
+    annotated = sentiment_service.annotate_news(news)
+    return sentiment_service.timeline_from_news(annotated)
+
+
 @router.get("/{symbol}", response_model=DailySentimentResponse)
 def get_sentiment(symbol: str) -> DailySentimentResponse:
     news = news_service.get_news(symbol=symbol)

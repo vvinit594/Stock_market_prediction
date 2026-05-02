@@ -5,7 +5,7 @@ from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy import text
 
-from app.api.routes import dashboard, news, portfolio, prediction, sentiment, stock
+from app.api.routes import dashboard, news, portfolio, prediction, search, sentiment, stock
 from app.core.cache import get_redis
 from app.core.config import get_settings
 from app.core.logging import configure_logging
@@ -30,6 +30,7 @@ app.add_middleware(
 )
 
 app.include_router(dashboard.router)
+app.include_router(search.router)
 app.include_router(stock.router)
 app.include_router(news.router)
 app.include_router(sentiment.router)

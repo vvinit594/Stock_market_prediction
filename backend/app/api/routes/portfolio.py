@@ -5,17 +5,20 @@ from app.core.cache import cache_delete_prefix
 from app.database.db import get_db
 from app.database.models import PortfolioItem
 from app.database.schemas import PortfolioAddRequest, PortfolioItemResponse
+from app.services.search_service import SearchService
 
 router = APIRouter(prefix="/api/portfolio", tags=["portfolio"])
+search_service = SearchService()
 
 
 @router.post("/add", response_model=PortfolioItemResponse)
 def add_to_portfolio(payload: PortfolioAddRequest, db: Session = Depends(get_db)) -> PortfolioItemResponse:
     symbol = payload.symbol.upper()
+    resolved_name = payload.company_name or search_service.resolve_company_name(symbol)
     existing = db.query(PortfolioItem).filter(PortfolioItem.symbol == symbol).first()
     if existing:
         existing.is_active = True
-        existing.company_name = payload.company_name or existing.company_name
+        existing.company_name = resolved_name or existing.company_name
         db.commit()
         db.refresh(existing)
         cache_delete_prefix("portfolio")
@@ -24,7 +27,7 @@ def add_to_portfolio(payload: PortfolioAddRequest, db: Session = Depends(get_db)
             company_name=existing.company_name,
             added_at=existing.added_at,
         )
-    row = PortfolioItem(symbol=symbol, company_name=payload.company_name, is_active=True)
+    row = PortfolioItem(symbol=symbol, company_name=resolved_name, is_active=True)
     db.add(row)
     db.commit()
     db.refresh(row)

@@ -13,6 +13,7 @@ if str(ROOT) not in sys.path:
 
 os.environ["DATABASE_URL"] = "sqlite:///./test_stockai.db"
 os.environ["USE_FINBERT"] = "false"
+os.environ["USE_MOCK_MARKET_DATA"] = "true"
 
 from app.database.db import Base, get_db  # noqa: E402
 from app.main import app  # noqa: E402

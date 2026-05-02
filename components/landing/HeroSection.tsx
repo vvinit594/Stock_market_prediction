@@ -67,7 +67,7 @@ export function HeroSection() {
             <Search className="absolute left-4 size-5 text-muted-foreground" />
             <Input
               type="text"
-              placeholder="Enter stock symbol (e.g. AAPL, TSLA)"
+              placeholder="Enter a ticker symbol"
               className="h-12 rounded-xl border-white/10 bg-white/5 pl-12 text-base backdrop-blur-sm placeholder:text-muted-foreground focus-visible:ring-2 focus-visible:ring-primary/50"
               aria-label="Stock symbol search"
             />

@@ -11,7 +11,8 @@ from app.utils.preprocessing import build_feature_frame
 
 
 def build_dataset(symbols: list[str] | None = None, out_path: str = "artifacts/dataset.csv") -> pd.DataFrame:
-    symbols = symbols or ["AAPL", "TSLA", "MSFT", "GOOGL", "NVDA"]
+    if not symbols:
+        raise ValueError("symbols is required — pass tickers from the CLI or calling code.")
     stock_service = StockService()
     news_service = NewsService()
     sentiment_service = SentimentService()
@@ -48,5 +49,11 @@ def build_dataset(symbols: list[str] | None = None, out_path: str = "artifacts/d
 
 
 if __name__ == "__main__":
-    df = build_dataset()
+    import sys
+
+    args = [a.strip().upper() for a in sys.argv[1:] if a.strip()]
+    if not args:
+        print("Usage: python -m ml_pipeline.dataset_builder TICKER [TICKER ...]")
+        sys.exit(1)
+    df = build_dataset(symbols=args)
     print(f"dataset rows={len(df)}")

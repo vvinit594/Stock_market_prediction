@@ -71,6 +71,25 @@ class SentimentService:
             "negative_count": counts.get("negative", 0),
         }
 
-    def get_daily_score(self, symbol: str) -> float:
-        _ = symbol
-        return 0.62
+    def timeline_from_news(self, news_items: list[dict]) -> list[dict]:
+        """Daily average sentiment mapped to 0–100 for charting (last 14 days with data)."""
+        from collections import defaultdict
+
+        buckets: dict[str, list[float]] = defaultdict(list)
+        for item in news_items:
+            raw = item.get("published_at")
+            if not raw:
+                continue
+            day = raw[:10] if isinstance(raw, str) else str(raw)[:10]
+            sc = item.get("sentiment_score")
+            if sc is None:
+                label = item.get("sentiment_label") or "neutral"
+                sc = self.label_to_score(label)
+            buckets[day].append(float(sc))
+        out: list[dict] = []
+        for day in sorted(buckets.keys())[-14:]:
+            vals = buckets[day]
+            avg = sum(vals) / len(vals)
+            pct = (avg + 1.0) / 2.0 * 100.0
+            out.append({"date": day, "score": round(pct, 2)})
+        return out

@@ -12,7 +12,7 @@ settings = get_settings()
 
 
 class StockService:
-    """Stock market ingestion service with fallback provider support."""
+    """Stock market ingestion: yfinance primary, Alpha Vantage secondary."""
 
     def get_dashboard_snapshot(self, symbol: str) -> dict:
         data = self.get_price_history(symbol=symbol, days=2)
@@ -29,8 +29,10 @@ class StockService:
 
     def get_price_history(self, symbol: str, days: int = 30) -> list[dict]:
         symbol = symbol.upper()
-        if not settings.USE_LIVE_MARKET_DATA:
+        if settings.USE_MOCK_MARKET_DATA:
             return self._fallback_history(symbol=symbol, days=days)
+
+        history: list[dict] = []
         try:
             history = self._fetch_yfinance(symbol=symbol, days=days)
             if history:
@@ -43,12 +45,60 @@ class StockService:
                 return history[-days:]
         except Exception:
             pass
-        return self._fallback_history(symbol=symbol, days=days)
+        raise ExternalServiceError(f"No market data available for {symbol}")
+
+    def get_ticker_metadata(self, symbol: str) -> dict[str, Any | None]:
+        symbol = symbol.upper()
+        if settings.USE_MOCK_MARKET_DATA:
+            return {
+                "company_name": f"{symbol} (mock)",
+                "sector": None,
+                "market_cap": None,
+                "ceo": None,
+            }
+        try:
+            t = yf.Ticker(symbol)
+            info = t.info or {}
+            cap = info.get("marketCap")
+            cap_str = None
+            if isinstance(cap, (int, float)) and cap > 0:
+                if cap >= 1e12:
+                    cap_str = f"${cap / 1e12:.2f}T"
+                elif cap >= 1e9:
+                    cap_str = f"${cap / 1e9:.2f}B"
+                elif cap >= 1e6:
+                    cap_str = f"${cap / 1e6:.2f}M"
+                else:
+                    cap_str = f"${cap:,.0f}"
+            officers = info.get("companyOfficers") or []
+            ceo = None
+            if officers and isinstance(officers[0], dict):
+                ceo = officers[0].get("name")
+            return {
+                "company_name": info.get("longName") or info.get("shortName") or symbol,
+                "sector": info.get("sector"),
+                "market_cap": cap_str,
+                "ceo": ceo,
+            }
+        except Exception:
+            return {"company_name": symbol, "sector": None, "market_cap": None, "ceo": None}
+
+    def quote_from_history(self, history: list[dict]) -> dict[str, Any]:
+        if not history:
+            raise ExternalServiceError("Empty price history")
+        last = history[-1]
+        prev_close = history[-2]["close"] if len(history) >= 2 else last["close"]
+        change_pct = ((last["close"] - prev_close) / prev_close) * 100 if prev_close else 0.0
+        return {
+            "current_price": round(float(last["close"]), 2),
+            "change_percent": round(float(change_pct), 2),
+            "volume": int(last.get("volume") or 0),
+        }
 
     @retry(stop=stop_after_attempt(3), wait=wait_exponential(multiplier=0.5, min=1, max=4))
     def _fetch_yfinance(self, symbol: str, days: int) -> list[dict]:
         ticker = yf.Ticker(symbol)
-        start_date = (datetime.utcnow() - timedelta(days=max(days * 2, 60))).date().isoformat()
+        start_date = (datetime.utcnow() - timedelta(days=max(days * 2, 120))).date().isoformat()
         hist = ticker.history(start=start_date, interval="1d")
         if hist.empty:
             return []
@@ -98,20 +148,21 @@ class StockService:
         return rows
 
     def _fallback_history(self, symbol: str, days: int) -> list[dict]:
-        _ = symbol
+        """Deterministic synthetic series for automated tests only (USE_MOCK_MARKET_DATA)."""
         now = datetime.utcnow()
         history: list[dict] = []
+        base = 100 + (sum(ord(c) for c in symbol) % 50)
         for i in range(days):
             d = now - timedelta(days=days - i)
-            close = 160 + (i * 0.9)
+            close = base + (i * 0.15)
             history.append(
                 {
                     "date": d.date().isoformat(),
-                    "open": round(close - 1.1, 2),
-                    "high": round(close + 1.5, 2),
-                    "low": round(close - 2.0, 2),
+                    "open": round(close - 0.5, 2),
+                    "high": round(close + 0.8, 2),
+                    "low": round(close - 0.9, 2),
                     "close": round(close, 2),
-                    "volume": 10_000_000 + i * 30_000,
+                    "volume": 1_000_000 + i * 5_000,
                 }
             )
         return history

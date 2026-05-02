@@ -97,20 +97,24 @@ export function WatchlistTable({ items, onRemove }: WatchlistTableProps) {
                 </td>
                 <td className="px-4 py-3">
                   <div className="flex h-10 w-20 items-end gap-0.5">
-                    {(() => {
-                      const max = Math.max(...row.sparklineData);
-                      const min = Math.min(...row.sparklineData);
-                      const range = max - min || 1;
-                      return row.sparklineData.map((v, j) => (
-                        <div
-                          key={j}
-                          className="flex-1 min-w-0 rounded-t bg-primary/40"
-                          style={{
-                            height: `${30 + ((v - min) / range) * 70}%`,
-                          }}
-                        />
-                      ));
-                    })()}
+                    {row.sparklineData.length === 0 ? (
+                      <span className="text-xs text-muted-foreground">—</span>
+                    ) : (
+                      (() => {
+                        const max = Math.max(...row.sparklineData);
+                        const min = Math.min(...row.sparklineData);
+                        const range = max - min || 1;
+                        return row.sparklineData.map((v, j) => (
+                          <div
+                            key={j}
+                            className="flex-1 min-w-0 rounded-t bg-primary/40"
+                            style={{
+                              height: `${30 + ((v - min) / range) * 70}%`,
+                            }}
+                          />
+                        ));
+                      })()
+                    )}
                   </div>
                 </td>
                 <td className="px-4 py-3">

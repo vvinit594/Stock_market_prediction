@@ -4,15 +4,36 @@ import { motion } from "framer-motion";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Activity, TrendingUp, BarChart3, Target } from "lucide-react";
 
-const indicators = [
-  { label: "RSI (14)", value: "58.2", icon: Activity },
-  { label: "MACD", value: "Bullish", icon: BarChart3 },
-  { label: "MA (50)", value: "$172.40", icon: TrendingUp },
-  { label: "Support", value: "$168.00", icon: Target },
-  { label: "Resistance", value: "$185.00", icon: Target },
-];
+export interface TechnicalIndicatorsCardProps {
+  rsi: number;
+  macd: number;
+  ma10: number;
+  ma50: number;
+  lastClose: number;
+  bbUpper: number;
+  bbLower: number;
+}
 
-export function TechnicalIndicatorsCard() {
+export function TechnicalIndicatorsCard({
+  rsi,
+  macd,
+  ma10,
+  ma50,
+  lastClose,
+  bbUpper,
+  bbLower,
+}: TechnicalIndicatorsCardProps) {
+  const macdLabel = macd >= 0 ? "Bullish bias" : "Bearish bias";
+  const items = [
+    { label: "RSI (14)", value: rsi.toFixed(2), icon: Activity },
+    { label: "MACD", value: macdLabel, icon: BarChart3 },
+    { label: "MA (50)", value: `$${ma50.toFixed(2)}`, icon: TrendingUp },
+    { label: "MA (10)", value: `$${ma10.toFixed(2)}`, icon: TrendingUp },
+    { label: "Bollinger lower", value: `$${bbLower.toFixed(2)}`, icon: Target },
+    { label: "Bollinger upper", value: `$${bbUpper.toFixed(2)}`, icon: Target },
+    { label: "Last close", value: `$${lastClose.toFixed(2)}`, icon: Target },
+  ];
+
   return (
     <motion.div
       initial={{ opacity: 0, y: 20 }}
@@ -27,7 +48,7 @@ export function TechnicalIndicatorsCard() {
         </CardHeader>
         <CardContent className="pt-0">
           <div className="grid grid-cols-2 gap-3 sm:grid-cols-3">
-            {indicators.map((item, i) => (
+            {items.map((item, i) => (
               <motion.div
                 key={item.label}
                 className="rounded-lg border border-white/10 bg-white/5 p-3 transition-all duration-200 hover:border-primary/20 hover:shadow-[0_0_16px_-4px] hover:shadow-primary/10"
@@ -37,9 +58,7 @@ export function TechnicalIndicatorsCard() {
               >
                 <div className="mb-1.5 flex items-center gap-2">
                   <item.icon className="size-4 text-primary" />
-                  <span className="text-xs text-muted-foreground">
-                    {item.label}
-                  </span>
+                  <span className="text-xs text-muted-foreground">{item.label}</span>
                 </div>
                 <p className="text-sm font-semibold text-white">{item.value}</p>
               </motion.div>

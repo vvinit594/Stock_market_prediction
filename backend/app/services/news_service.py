@@ -9,11 +9,12 @@ settings = get_settings()
 
 
 class NewsService:
-    """News ingestion service with NewsAPI primary and Finnhub fallback."""
+    """News ingestion: NewsAPI primary, Finnhub secondary. No static placeholder articles in production."""
 
     def get_news(self, symbol: str | None = None) -> list[dict]:
-        if not settings.USE_LIVE_MARKET_DATA:
-            return self._fallback_news()
+        if settings.USE_MOCK_MARKET_DATA:
+            return self._mock_news(symbol)
+
         query = symbol.upper() if symbol else "stock market"
         try:
             rows = self._fetch_newsapi(query)
@@ -27,7 +28,21 @@ class NewsService:
                 return rows
         except Exception:
             pass
-        return self._fallback_news()
+        return []
+
+    def _mock_news(self, symbol: str | None) -> list[dict]:
+        label = (symbol or "MARKET").upper()
+        now = datetime.utcnow().isoformat()
+        return [
+            {
+                "title": f"Mock development headline for {label}",
+                "description": "Synthetic article for automated tests.",
+                "source": "test",
+                "published_at": now,
+                "sentiment_label": None,
+                "sentiment_score": None,
+            },
+        ]
 
     @retry(stop=stop_after_attempt(2), wait=wait_exponential(multiplier=0.5, min=1, max=3))
     def _fetch_newsapi(self, query: str) -> list[dict]:
@@ -83,23 +98,3 @@ class NewsService:
                 }
             )
         return rows
-
-    def _fallback_news(self) -> list[dict]:
-        return [
-            {
-                "title": "Tech sector rally continues on AI optimism",
-                "description": "Large-cap technology names gain after upbeat guidance.",
-                "source": "Reuters",
-                "published_at": datetime.utcnow().isoformat(),
-                "sentiment_label": "positive",
-                "sentiment_score": 1.0,
-            },
-            {
-                "title": "Markets await Fed commentary for rate guidance",
-                "description": "Investors remain cautious before policy remarks.",
-                "source": "Bloomberg",
-                "published_at": datetime.utcnow().isoformat(),
-                "sentiment_label": "neutral",
-                "sentiment_score": 0.0,
-            },
-        ]

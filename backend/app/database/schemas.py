@@ -32,10 +32,22 @@ class DashboardResponse(BaseModel):
 
 class StockDetailResponse(BaseModel):
     symbol: str
+    company_name: str | None = None
+    sector: str | None = None
+    market_cap: str | None = None
+    ceo: str | None = None
+    current_price: float
+    change_percent: float
+    volume: int | None = None
     history: list[dict]
     indicators: dict
     prediction: PredictionResponse
     sentiment_timeline: list[dict]
+
+
+class SearchHit(BaseModel):
+    symbol: str
+    company_name: str
 
 
 class NewsItemResponse(BaseModel):

@@ -42,11 +42,3 @@ class PredictionService:
             "explanation": f"{symbol.upper()} signal based on technical indicators + sentiment fusion.",
             "model_breakdown": {"lstm": round(lstm_prob, 4), "xgboost": round(xgb_prob, 4)},
         }
-
-    def predict(self, symbol: str) -> dict:
-        return {
-            "signal": "BUY",
-            "confidence": 0.84,
-            "explanation": f"Preliminary signal for {symbol.upper()} based on trend + sentiment.",
-            "model_breakdown": {"lstm": 0.84, "xgboost": 0.79},
-        }

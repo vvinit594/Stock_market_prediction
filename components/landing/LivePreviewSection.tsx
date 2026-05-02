@@ -48,14 +48,14 @@ export function LivePreviewSection() {
             {/* Header row */}
             <div className="mb-6 flex flex-wrap items-center justify-between gap-4">
               <div className="flex items-center gap-3">
-                <span className="text-xl font-bold text-white">AAPL</span>
+                <span className="text-xl font-bold text-white">Watchlist</span>
                 <span className="rounded-full bg-emerald-500/20 px-2.5 py-0.5 text-xs font-medium text-emerald-400">
-                  BUY
+                  Live
                 </span>
               </div>
               <div className="flex items-center gap-2 text-emerald-400">
                 <TrendingUp className="size-4" />
-                <span className="text-sm font-medium">+2.4%</span>
+                <span className="text-sm font-medium">From your symbols</span>
               </div>
             </div>
 
@@ -87,7 +87,7 @@ export function LivePreviewSection() {
                   />
                 </div>
                 <p className="mt-1 text-xs text-muted-foreground">
-                  Bullish · 72%
+                  Blends headline tone with price action
                 </p>
               </div>
               <div className="rounded-lg border border-white/10 bg-white/5 px-4 py-2">
